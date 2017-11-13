@@ -1,16 +1,17 @@
 <?php
 
-	$handle = fopen('lesson_plan_file_to_download.csv', 'r');
+	$handle = fopen('file_to_download.csv', 'r');
 	if (!$handle) {
 		continue;
 	}
-	$old = array('6673','10725','10726','10747','10769','11274','11278','11296','11392','12236','12516','13046','13388','13391','13394','13427','13547','13554','13556','13558','13562','13580','13588','13594','13598','13600','13607','13609','13615','13617','13619','13621','13625','13627','13631','13637','13649','13651','13655','14699','15520','15523','15571');
+	$old = array();
 	fgetcsv($handle);
 
 	$i = 0;
 	while(! feof($handle)) {
 		$record = fgetcsv($handle);
 		$node = $record[0];
+		$index = $record[1];
 		$path = pathinfo($record[3]);
 //		$path = pathinfo($record[14]);
 
@@ -19,6 +20,7 @@
 //		$output_filename = $record[12];
 
 	    $output_filename = urldecode($path['basename']);
+//	    $output_filename = $node . '_' . $index . '_' . $output_filename;
 
 	    if(!file_exists('files_downloaded/'.$output_filename)) {
 	    	if(in_array($node, $old)) {

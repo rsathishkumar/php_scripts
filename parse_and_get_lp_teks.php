@@ -9,28 +9,24 @@ $result = array();
 
 $compare = [];
 $check_code = [];
-$read_csv = fopen("Lesson Plan Lookup.csv", 'r');
+$entry_array = [];
+$teks_number = [];
+$read_csv = fopen("TEKS_txcte.csv", 'r');
 while (!feof($read_csv)) {
   $record1 = fgetcsv($read_csv);
   $node_id = $record1[0];
   $code = $record1[2];
-  $node_title = $record1[1];
-  if(!isset($compare[$code])) {
-    $compare[$code] = [];
-  }
-  array_push($compare[$code], array('resource_id' => $node_id, 'resource_title' => $node_title));
-  $check_code[] = $code;
+  $resource_id = $record1[1];
+  array_push($compare, array('node' => $node_id,'resource_id' => $resource_id, 'teks' => $code));
 }
 
-  $check_code = array_unique($check_code);
-
-if ($handle = opendir('doc to convert/Practicum Scope and Sequence Files')) {
+if ($handle = opendir('txcte/test')) {
 
   while (false !== ($entry = readdir($handle))) {
 
     if ($entry != "." && $entry != ".." && $entry != '.DS_Store') {
 
-      $docObj = new Filetotext('doc to convert/Practicum Scope and Sequence Files/'.$entry);
+      $docObj = new Filetotext('txcte/test/'.$entry);
       $return = $docObj->convertToText();
 
       $text = explode("\n\r", $return);
@@ -41,130 +37,68 @@ if ($handle = opendir('doc to convert/Practicum Scope and Sequence Files')) {
       $row_content = '';
       $course_name = '';
       $code = '';
-      $teks_number = '';
       $unit_number = '';
       $unit_name = '';
       $section_number = '';
       $main_content = '';
+      $file_id = '';
+      $file_id = explode('____', $entry);
       for($i=0; $i<count($text); $i++) {
         $write = false;
         $str = $text[$i];
-        $match = preg_match('/Course Name:/',$str);
-        if($match) {
-          $explode = explode(':', $str);
-          $course_name = trim($explode[1]);
-        }
-        $match = preg_match('/TSDS PEIMS Code:/',$str);
-        if(empty($match)) {
-          $match = preg_match('/PEIMS Code:/',$str);
-        }
-        if($match) {
-          $explode = explode(':', $str);
-          $code = str_replace('Course Credit','',$explode[1]);
-        }
-        $replace = '';
-        $match = preg_match('/. Knowledge and skills/',$str);
-        if(empty($match)) {
-          $match = preg_match('/\) Knowledge and skills/',$str);
-        }
-        $replace = 'Knowledge and skills';
-        if(empty($match)) {
-          $match = preg_match('/\) Knowledge and Skills/',$str);
-          $replace = 'Knowledge and Skills';
-        }
-        if(empty($match)) {
-          $match = preg_match('/. Knowledge and Skills/',$str);
-          $replace = 'Knowledge and Skills';
-        }
-        if($match && !$teks_number) {
-          if(strpos($str, 'Course Description:') !== FALSE) {
-            continue;
-          }
-          $explode = explode(" ".$replace,$str);
-          $teks = $explode[0];
-          $teks = str_replace('(c)', '. (c)', $teks);
-          $teks = str_replace('  ', ' ', $teks);
-          $teks = str_replace('..', '.', $teks);
-          $teks = str_replace('. .', '.', $teks);
-          $teks = str_replace(' .', '.', $teks);
-          $teks_number = $teks;
-          $found = 0;
-        }
-        preg_match('/\([0-9]*\)[\t]/',$str, $match);
-        if(empty($match)) {
-          preg_match('/\([0-9]*\)/',$str, $match);
-        }
-        if(isset($match[0]) && $match[0]) {
-          $section_number = str_replace("\t",'', $match[0]);
-          $found = 1;
+
+        $status = 0;
+        $continue = 0;
+        if($file_id[0] == 6689) {
+          $t = ";;;";
         }
 
-        if($found == 1) {
-          for($j = $i+1; $j<count($text); $j++) {
-            $match = [];
+        preg_match_all('#\d{3}+(?:\.[0-9]{1,3})?#', $str, $matches);
+        if($matches[0]) {
+          $code = implode('.',$matches[0]);
+          $status = 1;
+        }
+        $sub_section = [];
+        $section = '';
+        $section_number = [];
+
+        if($status == 1) {
+          for($j=($i+1); $j<35; $j++) {
+            if(!isset($text[$j])) {
+              continue;
+            }
             $sub_string = $text[$j];
-            preg_match('/\([A-Z]\)\s/',$sub_string, $match);
-            if(empty($match)) {
-              preg_match('/\([A-Z]\)\s\s\s\s\s/',$sub_string, $match);
+            preg_match('/\([A-Z]\)/',$sub_string, $match_char);
+            preg_match('/^\([0-9]*\)/',$sub_string, $match_number);
+            if(!empty($match_char)) {
+              preg_match('#\((.*?)\)#', $match_char[0], $m_string);
+              $sub_section[$section][] = $m_string[1];
             }
-            preg_match('/\([a-z]*\)\s/',$sub_string, $match2);
-            if(empty($match2)) {
-              preg_match('/\([a-z]*\)\s\s\s\s\s/',$sub_string, $match2);
+            else if(!empty($match_number)) {
+              preg_match('#\((.*?)\)#', $match_number[0], $m_string);
+              $section_number[] = $m_string[1];
+              $section = $m_string[1];
             }
-            if(isset($match[0]) && $match[0]) {
-              $item_number = str_replace("\t",'', $match[0]);
-              $result[$course_name][$x++]['content'] = [$course_name, $code,
-                $unit_number, $unit_name, $teks_number,
-                $section_number . $item_number,
-                $teks_number . $section_number . $item_number
-              ];
-              $write = true;
-            }
-            else if(isset($match2[0]) && $match2[0]) {
-              $sub_item_number = str_replace("\t",'', $match2[0]);
-              $write = true;
+          }
+          foreach($section_number as $k => $v) {
+            if(isset($sub_section[$v])) {
+              foreach ($sub_section[$v] as $x => $y) {
+                $teks = $code . '.c.' . $v . '.' . $y;
+                array_push($teks_number, ['node_id'=>$file_id[0], 'code' => $teks]);
+              }
             }
             else {
-              $match = preg_match('/Copyright/',$sub_string);
-              if($match) {
-                $j = count($text);
-                $write = true;
-              }
-              if(!$write && empty($match)) {
-                preg_match('#\((.*?)\)#', $section_number, $match_number);
-                if($match_number[1]) {
-                  $number= "(".$match_number[1].")()";
-                  $result[$course_name][$x++]['content'] = [$course_name, $code,
-                    $unit_number, $unit_name, $teks_number,
-                    $number,
-                    $teks_number . $section_number
-                  ];
-                }
-              }
-
-              $j = count($text);
-              $found = 0;
+              $teks = $code . '.c.' . $v;
+              array_push($teks_number, ['node_id'=>$file_id[0], 'code' => $teks]);
             }
           }
+          $status = 0;
+          $continue = 1;
+        //  $j = count($text);
         }
 
-        $match = preg_match('/Copyright/',$str);
-        if($match) {
+        if($continue == 1) {
           $i = count($text);
-        }
-
-        preg_match('/Unit [0-9]*\:/',$str, $match);
-        if(empty($match)) {
-          preg_match('/Section [0-9]*\:/',$str, $match);
-        }
-        if(empty($match)) {
-          preg_match('/Unit [0-9]*\./',$str, $match);
-        }
-        if($match) {
-          $unit_number = str_replace(':','',$match[0]);
-          $find_unit_name = explode($match[0],$str);
-          $unit_name = trim($find_unit_name[1]);
-          $unit_name = str_replace('. ', '', $unit_name);
         }
       }
     }
@@ -173,23 +107,42 @@ if ($handle = opendir('doc to convert/Practicum Scope and Sequence Files')) {
   closedir($handle);
 }
 
-
 $csv_label = array();
-fputcsv($file, ['Course name','TSDS PEIMS Code','Unit/Section #','Unit/Section name','TEKS Chapter','TEKS', 'TEKS code', 'Resource ID',	'Lesson Plan Name']);
-foreach($result as $key => $val) {
-  foreach($val as $v) {
-    if(in_array($v['content'][6], $check_code)) {
-      foreach($compare[$v['content'][6]] as $x => $y) {
-        $array = $v['content'];
-        $array[] = $y['resource_id'];
-        $array[] = $y['resource_title'];
-        fputcsv($file, $array);
-      }
-    }
-    else {
-      array_pop($v['content']);
-      fputcsv($file, $v['content']);
+
+$node_list = [];
+fputcsv($file, ['Node ID','Resource ID','TEKS in TCRC','TEKS in LP','LP Resource id']);
+foreach($compare as $key => $val) {
+  $tek = $val['teks'];
+  $resource_id = $val['resource_id'];
+  $node = $val['node'];
+
+  $array = [];
+  $array[] = $val['node'];
+  $array[] = $val['resource_id'];
+  $assign_array = $tmp_array = $array;
+  $array[] = $val['teks'];
+  $node_list[$val['resource_id']] = $val['node'];
+  foreach($teks_number as $k => $v) {
+    if($v['node_id'] == $val['resource_id'] && $v['code'] == $tek) {
+      $array[] = $tek;
+      $array[] = $v['node_id'];
+      unset($teks_number[$k]);
+
     }
   }
+  fputcsv($file, $array);
+
 }
+
+foreach($teks_number as $k => $v) {
+  $array = [];
+  $array[] = $node_list[$v['node_id']];
+  $array[] = $v['node_id'];
+  $array[] = '';
+  $array[] = $v['code'];
+  $array[] = $v['node_id'];
+  fputcsv($file, $array);
+
+}
+
 fclose($file);

@@ -12,13 +12,13 @@ $check_code = [];
 $entry_array = [];
 $teks_number = [];
 
-if ($handle = opendir('txcte/word')) {
+if ($handle = opendir('txcte/pdf')) {
 
   while (false !== ($entry = readdir($handle))) {
 
     if ($entry != "." && $entry != ".." && $entry != '.DS_Store') {
 
-      $docObj = new Filetotext('txcte/word/'.$entry);
+      $docObj = new Filetotext('txcte/pdf/'.$entry);
       $return = $docObj->convertToText();
 
       $text = explode("\n\r", $return);

@@ -1,6 +1,6 @@
 
 <?php
-
+header('Content-Type: text/html; charset=UTF-8');
 require("class.filetotext.php");
 
 $file = fopen("test_lp.csv", 'w');
@@ -186,6 +186,10 @@ if ($handle = opendir('doc to convert/test2')) {
           $unit_name = trim($find_unit_name[1]);
           $unit_name = str_replace('. ', '', $unit_name);
           $unit_name = str_replace('FAKE ', '', $unit_name);
+          $next_line = $text[$i+1];
+          if($next_line) {
+            $unit_name = $unit_name . $next_line;
+          }
         }
       }
     }
@@ -220,12 +224,15 @@ foreach($result as $key => $val) {
 }
 */
 fclose($file);
+
 foreach($result as $key => $val) {
   foreach($val as $v) {
     if($v['content'][2]) {
-      echo '<br />' . $v['content'][2] . ': ' . $v['content'][3];
+      $name = $v['content'][3];
+      if (preg_match('/[^A-Za-z0-9\:\,\-\/\(\)\.\' ]+/i',$name)){
+          echo '<br />' . $v['content'][2] . ': ' . $v['content'][3];
+      }    
     }
-    
   }
 }
 

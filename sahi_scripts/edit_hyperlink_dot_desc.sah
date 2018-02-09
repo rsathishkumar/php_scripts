@@ -1,0 +1,102 @@
+//_navigateTo("https://txcte.org/user");
+//_setValue(_textbox("name"), "michelle.carson@safalpartners.com");
+//_setValue(_password("pass"), "safal101");
+//_click(_span("Sign in"));
+var $url_details = {};
+var $currentStep = 0;
+var $uploaded_files = {};
+var $intro;
+var $filename_link;
+var $get_file_url;
+
+var $content = _readCSVFile("../../data/export.csv");
+var $select_values = {
+	'Individual with disabilities':'individual', 
+	'Preparing for nontraditional careers':'preparing',
+	'English Language Learners':'english',
+	'Other':'other',
+	'Audio':'audio',
+	'Downloadable docs':'downloadable',
+ 	'eBook':'ebook',
+ 	'Graphics/photos':'graphics',
+ 	'Interactive':'interactive',
+ 	'Mobile':'mobile',
+ 	'Text/HTML':'text',
+ 	'Video':'video',
+ 	'Activity/Lab':'activity',
+ 	'Assessment':'assessment',
+ 	'Career Development':'career',
+ 	'Case Study':'case',
+ 	'Data Set':'data',
+ 	'Diagram/Illustration':'diagram',
+ 	'Game':'game',
+ 	'Homework/Assignment':'homework',
+ 	'Learning Strategy':'learning',
+ 	'Lecture':'lecture',
+ 	'Lesson Plan':'lesson',
+ 	'Professional Development':'professional',
+ 	'Program of Study':'program',
+ 	'Reading':'reading',
+ 	'Scope and Sequence':'scope',
+ 	'Simulation':'simulation',
+ 	'Student Guide':'student', 
+ 	'Syllabus':'syllabus',
+ 	'Teaching Strategy':'teaching',
+ 	'Administrators':'administrators',
+ 	'Students':'students',
+ 	'Teachers':'teacher',
+ 	'Parents':'parents',
+ 	'Counselors':'counselors',
+ 	'Agriculture, Food and Natural Resources Career Cluster':'Agriculture, Food & Natural Resources',
+ 	'Architecture and Construction':'Architecture & Construction',
+ 	'Arts, AV Technology and Communications':'Arts, A/V Technology & Communications',
+ 	'Business Management and Administration':'Business Management & Administration',
+ 	'Education and Training':'Education & Training',
+ 	'Finance':'Finance',
+ 	'Government and Public Administration':'Government & Public Administration',
+ 	'Health Science':'Health Science',
+ 	'Hospitality and Tourism':'Hospitality & Tourism',
+ 	'Human Services':'Human Services',
+ 	'Information Technology':'Information Technology',
+ 	'Law, Public Safety, Corrections & Security':'Law, Public Safety, Corrections & Security',
+ 	'Manufacturing':'Manufacturing',
+ 	'Marketing':'Marketing',
+ 	'Science, Technology, Engineering and Mathematics':'Science, Technology, Engineering & Mathematics',
+ 	'Transportation, Distribution, and Logistics':'Transportation, Distribution & Logistics',
+};
+for($i=1; $i<=($content.length-1); $i++) {
+var $submit = 0;	
+	var $resource_id = $content[$i][0];
+
+
+
+_navigateTo("https://txcte.org/dashboard/resources/step-one/"+$resource_id);
+	_selectDomain();
+		
+		_click(_link("Edit", _in(_div("edit-field-resource-documents-und--2-ajax-wrapper"))))
+		_set($filename_link, _textbox("filename").value);
+		
+		_click(_link("View"));
+		_set($get_file_url, _link($filename_link).href);
+			
+		
+		_click(_link("Content"));
+		_click(_link("Description"));
+		_click(_link("Edit"));
+		_setSelected(_select("field_subcontent_html_body[und][0][format]"), "Plain text");
+		
+		_set($intro, _textarea("field_subcontent_html_body[und][0][value]").value);
+		$intro = $intro.replace("Download the lesson plan.","Download the lesson plan");
+		_setValue(_textarea("field_subcontent_html_body[und][0][value]"), $intro);
+
+		_setSelected(_select("field_subcontent_html_body[und][0][format]"), "Full HTML");
+		
+		_doubleClick(_textbox("field_subcontent_cite[und][0][value]"));		
+		_keyPress(_textbox("field_subcontent_cite[und][0][value]"), [13,13]);
+		
+			_click(_submit("Save[1]"));
+
+		
+				_wait(5000);
+}
+

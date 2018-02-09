@@ -1,0 +1,18 @@
+//_click(_link("Description"));
+		//_click(_link("Edit"));
+		//_setSelected(_select("field_subcontent_html_body[und][0][format]"), "Plain text");
+		
+		/*$intro += ' <p><a href="'+$get_file_url+'">Download the lesson plan.</a></p><h3 style="color:red;">Scroll to the Related Items section at the bottom of this page for additional resources.</h3>';
+		_setValue(_textarea("field_subcontent_html_body[und][0][value]"), $intro);
+
+		_setSelected(_select("field_subcontent_html_body[und][0][format]"), "Full HTML");
+		
+		_doubleClick(_textbox("field_subcontent_cite[und][0][value]"));		
+		_keyPress(_textbox("field_subcontent_cite[und][0][value]"), [13,13]);
+		
+			_click(_submit("Save[1]"));
+
+		
+				_wait(5000);
+		_click(_link("Content"));
+		*/

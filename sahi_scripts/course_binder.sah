@@ -1,0 +1,227 @@
+//_navigateTo("https://txcte.org/user");
+//_setValue(_textbox("name"), "michelle.carson@safalpartners.com");
+//_setValue(_password("pass"), "safal101");
+//_click(_span("Sign in"));
+var $url_details = {};
+var $currentStep = 0;
+var $uploaded_files = {};
+
+var $content = _readCSVFile("../../data/course_binder.csv");
+var $select_values = {
+	'Individual with disabilities':'individual', 
+	'Preparing for nontraditional careers':'preparing',
+	'English Language Learners':'english',
+	'Other':'other',
+	'Audio':'audio',
+	'Downloadable docs':'downloadable',
+ 	'eBook':'ebook',
+ 	'Graphics/photos':'graphics',
+ 	'Interactive':'interactive',
+ 	'Mobile':'mobile',
+ 	'Text/HTML':'text',
+ 	'Video':'video',
+ 	'Activity/Lab':'activity',
+ 	'Assessment':'assessment',
+ 	'Career Development':'career',
+ 	'Case Study':'case',
+ 	'Data Set':'data',
+ 	'Diagram/Illustration':'diagram',
+ 	'Game':'game',
+ 	'Homework/Assignment':'homework',
+ 	'Learning Strategy':'learning',
+ 	'Lecture':'lecture',
+ 	'Lesson Plan':'lesson',
+ 	'Professional Development':'professional',
+ 	'Program of Study':'program',
+ 	'Reading':'reading',
+ 	'Scope and Sequence':'scope',
+ 	'Simulation':'simulation',
+ 	'Student Guide':'student', 
+ 	'Syllabus':'syllabus',
+ 	'Teaching Strategy':'teaching',
+ 	'Administrators':'administrators',
+ 	'Students':'students',
+ 	'Teachers':'teacher',
+ 	'Parents':'parents',
+ 	'Counselors':'counselors',
+ 	'Agriculture, Food and Natural Resources Career Cluster':'Agriculture, Food & Natural Resources',
+ 	'Architecture and Construction':'Architecture & Construction',
+ 	'Arts, AV Technology and Communications':'Arts, A/V Technology & Communications',
+ 	'Business Management and Administration':'Business Management & Administration',
+ 	'Education and Training':'Education & Training',
+ 	'Finance':'Finance',
+ 	'Government and Public Administration':'Government & Public Administration',
+ 	'Health Science':'Health Science',
+ 	'Hospitality and Tourism':'Hospitality & Tourism',
+ 	'Human Services':'Human Services',
+ 	'Information Technology':'Information Technology',
+ 	'Law, Public Safety, Corrections & Security':'Law, Public Safety, Corrections & Security',
+ 	'Manufacturing':'Manufacturing',
+ 	'Marketing':'Marketing',
+ 	'Science, Technology, Engineering and Mathematics':'Science, Technology, Engineering & Mathematics',
+ 	'Transportation, Distribution, and Logistics':'Transportation, Distribution & Logistics',
+};
+
+
+var $img_values = {
+ 	'Agriculture, Food & Natural Resources':'01_AFNR_cmyk_300px-Icon.png',
+ 	'Architecture & Construction':'02_AC_cmyk_300px-Icon.png',
+ 	'Arts, A/V Technology & Communications':'03_AAVTC_cmyk_300px-Icon.png',
+ 	'Business Management & Administration':'04_BMA_cmyk_300px-Icon.png',
+ 	'Education & Training':'05_ET_cmyk_300px-Icon.png',
+ 	'Finance':'06_Finance_cmyk_300px-Icon.png',
+ 	'Government & Public Administration':'07_GPA_cmyk_300px-Icon.png',
+ 	'Health Science':'08_HealthScience_cmyk_300px-Icon.png',
+ 	'Hospitality & Tourism':'09_HT_cmyk_300px-Icon.png',
+ 	'Human Services':'10_HumanServices_cmyk_300px-Icon.png',
+ 	'Information Technology':'11_IT_cmyk_300px-Icon.png',
+ 	'Law, Public Safety, Corrections & Security':'12_LPSCS_cmyk_300px-Icon.png',
+ 	'Manufacturing':'13_Manufacturing_cmyk_300px-Icon.png',
+ 	'Marketing':'14_Marketing_cmyk_300px-Icon.png',
+ 	'Science, Technology, Engineering & Mathematics':'15_STEM_cmyk_300px-Icon.png',
+ 	'Transportation, Distribution & Logistics':'16_TDL_cmyk_300px-Icon.png',
+ 	'Career Development':'19_Career_Development_cmyk_300px-Icon.png',
+};
+
+for($i=1; $i<=($content.length-1); $i++) {
+
+_click(_link("Content Editor"));
+_click(_span("Course Binder"));
+
+var $course_name = $content[$i][0];
+	var $code = $content[$i][1];
+	var $grad = $content[$i][2];
+	var $desc = $content[$i][3];
+	var $sos = $content[$i][4];
+	var $pos = $content[$i][5];
+	var $career = $content[$i][6];
+	var $cluster = $content[$i][7];
+	var $course = $content[$i][8];
+
+
+	_setValue(_textbox("title"), $course_name);
+	_setValue(_textbox("field_group_key[und][0][value]"), $code);
+	_setSelected(_select("field_group_description[und][0][format]"), "Plain text");
+	var $grad_text = '';
+	if($grad == 1) {
+		$grad_text = '<p><img alt="" src="//doiiqboluiex6.cloudfront.net/sites/default/files/Meets%20an%20English%20Language%20ArtsGraduation%20Requirement_0.png" style="width: 155px; height: 155px; float: left;" /></p>';
+	}
+	var $description = $grad_text + '<p>'+$desc+'</p><p style="color:red">This binder does not contain all lesson plans for this course. This content can be used with any textbook or instructional materials. If locally adapted, make sure all TEKS are covered.</p>';
+	_setValue(_textarea("field_group_description[und][0][value]"), $description);
+	_setSelected(_select("field_group_description[und][0][format]"), "Full HTML");
+
+
+	// image uploaded_files
+	
+	_wait(3000);
+	_click(_span("Browse"));
+	_wait(3000);
+	//_setFile2(_file("files[upload]"), "../data/"+$file_url);
+	
+	setFileUpload(_file("files[upload]"), $img_values[$career]);
+			
+	_click(_submit("Upload"));
+	_wait(10000);
+	_click(_submit("Next"));
+	_wait(5000);
+	_click(_submit("Save"));	
+	
+	// end of image upload script
+	
+	
+	
+	
+	_setSelected(_select("field_resource_cpc[und][hierarchical_select][selects][0][0]"), $career);
+	_setSelected(_select("field_resource_cpc[und][hierarchical_select][selects][1][0]"), $cluster);
+	_setSelected(_select("field_resource_cpc[und][hierarchical_select][selects][2][0]"), $course);
+	_click(_submit("Add"));
+	
+	var $index = 0;
+	$add_more = 1;
+	
+	_setValue(_textbox("field_course_binder_units[und]["+$index+"][field_course_binder_unit_title][und][0][value]"), "Scope and Sequence");
+	_setValue(_textbox("field_course_binder_units[und]["+$index+"][field_group_resources_assigned][und][0][target_id]"), $sos);
+	_wait(3000);
+
+	_keyPress(_textbox("field_course_binder_units[und]["+$index+"][field_group_resources_assigned][und][0][target_id]"),40);
+
+	
+	$index++;
+	
+	_click(_submit("Add Unit"));
+	
+	if($pos) {
+		var $pos_array = $pos.split(';');
+			_setValue(_textbox("field_course_binder_units[und]["+$index+"][field_course_binder_unit_title][und][0][value]"), "Program of Study");
+			var $inner_index = 0;
+		for($x = 0; $x < $pos_array.length; $x++) {
+			_setValue(_textbox("field_course_binder_units[und]["+$index+"][field_group_resources_assigned][und]["+$inner_index+"][target_id]"), $pos_array[$x]);
+			_wait(3000);			_keyPress(_textbox("field_course_binder_units[und]["+$index+"][field_group_resources_assigned][und]["+$inner_index+"][target_id]"),40);
+			_click(_submit({name: "field_course_binder_units_und_1_field_group_resources_assigned_add_more"}));
+			$inner_index++;
+		}	
+		$index++;
+	}
+	
+	for($j = 9; $j < 50; $j++) {
+		if($content[$i][$j]) {
+			_click(_submit("Add Unit"));
+			$add_more++;
+			_setValue(_textbox("field_course_binder_units[und]["+$index+"][field_course_binder_unit_title][und][0][value]"), $content[$i][$j]);
+			var $units = $content[$i][++$j];
+			if($units) {
+			$unit_array = $units.split(';');
+			var $inner_index = 0;
+			for($u = 0; $u < $unit_array.length; $u++) {
+				
+			$unit_code = $unit_array[$u];
+			if($unit_code == 'NULL') { $unit_code = 'CSLP01'; }
+			_setValue(_textbox("field_course_binder_units[und]["+$index+"][field_group_resources_assigned][und]["+$inner_index+"][target_id]"), $unit_code);
+				_wait(3000);			_keyPress(_textbox("field_course_binder_units[und]["+$index+"][field_group_resources_assigned][und]["+$inner_index+"][target_id]"),40);
+				_click(_submit({name: "field_course_binder_units_und_"+$add_more+"_field_group_resources_assigned_add_more"}));
+				$inner_index++;
+			}
+			}
+			else {
+				_setValue(_textbox("field_course_binder_units[und]["+$index+"][field_group_resources_assigned][und][0][target_id]"), 'CSLP02');
+				_wait(3000);			_keyPress(_textbox("field_course_binder_units[und]["+$index+"][field_group_resources_assigned][und][0][target_id]"),40);
+			}
+						$index++;
+	
+		
+		}
+	
+	}
+	
+
+	
+		_click(_span("Save and Advance"));
+				_wait(5000);
+
+
+	var $url;
+	_set($url, window.location.href);
+	$get_id = $url.split("/");
+	var $length = $get_id.length - 1;
+}
+
+function trim(str) {
+	return str.replace(/^\s+|\s+$/g,"");
+}
+
+function setFileUpload($fileEl, $path) {
+	_focusWindow();
+	_wait(1000); // needed
+	// focus on the element
+	_focus($fileEl);
+	// click "space" to bring up the browser dialog
+	_typeKeyCodeNative(java.awt.event.KeyEvent.VK_SPACE);
+	_wait(1000);
+	// type the file path
+	_typeNative($path);
+	_wait(1000);
+	// press enter
+	_typeKeyCodeNative(java.awt.event.KeyEvent.VK_ENTER);
+	_wait(1000);
+}
+

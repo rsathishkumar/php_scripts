@@ -1,0 +1,225 @@
+//_navigateTo("https://txcte.org/user");
+//_setValue(_textbox("name"), "michelle.carson@safalpartners.com");
+//_setValue(_password("pass"), "safal101");
+//_click(_span("Sign in"));
+var $url_details = {};
+var $currentStep = 0;
+var $uploaded_files = {};
+var $filename_link = '';
+var $get_file_url;
+var $intro;
+
+var $content = _readCSVFile("../../data/export.csv");
+var $select_values = {
+	'Individual with disabilities':'individual', 
+	'Preparing for nontraditional careers':'preparing',
+	'English Language Learners':'english',
+	'Other':'other',
+	'Audio':'audio',
+	'Downloadable docs':'downloadable',
+ 	'eBook':'ebook',
+ 	'Graphics/photos':'graphics',
+ 	'Interactive':'interactive',
+ 	'Mobile':'mobile',
+ 	'Text/HTML':'text',
+ 	'Video':'video',
+ 	'Activity/Lab':'activity',
+ 	'Assessment':'assessment',
+ 	'Career Development':'career',
+ 	'Case Study':'case',
+ 	'Data Set':'data',
+ 	'Diagram/Illustration':'diagram',
+ 	'Game':'game',
+ 	'Homework/Assignment':'homework',
+ 	'Learning Strategy':'learning',
+ 	'Lecture':'lecture',
+ 	'Lesson Plan':'lesson',
+ 	'Professional Development':'professional',
+ 	'Program of Study':'program',
+ 	'Reading':'reading',
+ 	'Scope and Sequence':'scope',
+ 	'Simulation':'simulation',
+ 	'Student Guide':'student', 
+ 	'Syllabus':'syllabus',
+ 	'Teaching Strategy':'teaching',
+ 	'Administrators':'administrators',
+ 	'Students':'students',
+ 	'Teachers':'teacher',
+ 	'Parents':'parents',
+ 	'Counselors':'counselors',
+ 	'Agriculture, Food and Natural Resources Career Cluster':'Agriculture, Food & Natural Resources',
+ 	'Architecture and Construction':'Architecture & Construction',
+ 	'Arts, AV Technology and Communications':'Arts, A/V Technology & Communications',
+ 	'Business Management and Administration':'Business Management & Administration',
+ 	'Education and Training':'Education & Training',
+ 	'Finance':'Finance',
+ 	'Government and Public Administration':'Government & Public Administration',
+ 	'Health Science':'Health Science',
+ 	'Hospitality and Tourism':'Hospitality & Tourism',
+ 	'Human Services':'Human Services',
+ 	'Information Technology':'Information Technology',
+ 	'Law, Public Safety, Corrections & Security':'Law, Public Safety, Corrections & Security',
+ 	'Manufacturing':'Manufacturing',
+ 	'Marketing':'Marketing',
+ 	'Science, Technology, Engineering and Mathematics':'Science, Technology, Engineering & Mathematics',
+ 	'Transportation, Distribution, and Logistics':'Transportation, Distribution & Logistics',
+};
+var $icons = {
+	'':'',
+};
+for($i=1; $i<=($content.length-1); $i++) {
+var $submit = 0;	
+	var $resource_id = $content[$i][0];
+	var $filename = $content[$i][2];
+	var $rename_filename = $content[$i][1];
+
+	if($filename) {
+		$filename_array = $filename.split('***');
+	}
+	if($rename_filename) {
+		$rename_filename_array = $rename_filename.split('***');
+	}
+
+
+_navigateTo("https://txcte.org/dashboard/resources/");
+	_selectDomain();
+		_setValue(_textbox("combine_ids"), $resource_id);
+		_click(_span("Apply"));
+		_click(_link("Edit"));
+
+	$is_document = false;
+
+	
+		_set($intro, _textarea("field_resource_description[und][0][value]").value);
+		_click(_link("Edit", _in(_div("edit-field-resource-documents-und--2-ajax-wrapper"))))
+		_set($filename_link, _textbox("filename").value);
+	  _click(_link("Close Window"));
+
+	for($x = 0; $x < $filename_array.length; $x++) {
+			var $mode = '';
+			var $filenametocheck = $filename_array[$x];
+			var $path = $filenametocheck.split('/');
+			var $file_url = trim($path[$path.length - 1]);
+			var $file_url_extension_array = $file_url.split('.');
+			var $file_url_extension_array_length = $file_url_extension_array.length;
+			var $extension = $file_url_extension_array[$file_url_extension_array_length-1];
+		if($extension == 'xls' || $extension == 'xlsx' || $extension == 'jpg' || $extension == 'png' ||
+			$extension == 'doc' || $extension == 'docx' || $extension == 'pptx'  || 
+			$extension == 'DOCX') {
+				var $steps = new Array();
+				$check_file = $file_url.split('.');
+				_wait(3000);
+				_click(_link("Browse", _in(_div("/edit-field-resource-documents/"))));
+				_wait(20000);
+				//_setFile2(_file("files[upload]"), "../data/"+$file_url);
+				
+				setFileUpload(_file("files[upload]"), $file_url);
+						
+				_click(_submit("Upload"));
+				_wait(10000);
+				_click(_submit("Next"));
+				_wait(10000);
+				_setValue(_textbox("filename"), $rename_filename_array[$x]);
+				_setValue(_textbox("field_file_publication_date[und][0][value][date]"), "09/08/2017");
+				_click(_radio("edit-field-file-transitions-workflow-und-none"));
+				_setValue(_textbox("field_old_nid[und][0][value]"), $resource_id);
+				_wait(5000);
+				_click(_submit("Save"));
+				_wait(3000);
+					
+				_wait(10000);
+				$is_document = true;
+		}	
+	}
+	$submit = 1;
+		_click(_span("Save and Advance"));
+				_wait(5000);
+
+		//_set($get_file_url, _link($filename_link).href);
+
+		
+		_click(_link("Content"));
+		
+if($submit == 1) {
+
+
+	for($x = 0; $x < $filename_array.length; $x++) {
+		var $mode = '';
+			var $filenametocheck = $filename_array[$x];
+			var $path = $filenametocheck.split('/');
+			var $file_url = trim($path[$path.length - 1]);
+		var $file_url_extension_array = $file_url.split('.');
+		var $file_url_extension_array_length = $file_url_extension_array.length;
+		var $extension = $file_url_extension_array[$file_url_extension_array_length-1];
+		
+		if($extension == 'mp4' || $extension == 'wmv' || $extension == 'mov' || $extension == 'MP4' || 
+		   $extension == 'WMV' || $extension == 'MOV') {
+			$mode = 'Video';
+		}	
+
+		if($extension == 'mp3') {
+			$mode = 'Audio';
+		}	
+
+
+		if($extension == 'pdf') {
+			$mode = 'PDF';
+		}	
+
+		if($mode != '') {
+			$check_file = $file_url.split('.');
+			_click(_span("Add Section"));
+			_setValue(_textbox("title"), "Example "+$mode);
+			_click(_submit("Add Content"));
+			_click(_link($mode));
+			_wait(3000);
+			_click(_span("Select"));
+				//_setFile2(_file("files[upload]"), "../data/"+$file_url);
+				setFileUpload(_file("files[upload]"), $file_url);
+				_click(_submit("Upload"));
+				_wait(20000);
+				_click(_submit("Next"));
+				_setValue(_textbox("field_file_publication_date[und][0][value][date]"), "08/23/2017");
+				_click(_radio("edit-field-file-transitions-workflow-und-none"));
+				_setValue(_textbox("field_old_nid[und][0][value]"), $resource_id);
+				_click(_submit("Save"));	
+				_wait(5000);
+				_click(_span("Add Document"));
+
+			_click(_link("Submit[0]"));
+			_click(_submit("Save[1]"));
+		}
+	}
+	}
+	var $url;
+	_set($url, window.location.href);
+	$get_id = $url.split("/");
+	var $length = $get_id.length - 1;
+}
+
+function trim(str) {
+    str = str.replace(/%26/g,"&");
+    str = str.replace(/%23/g,"#");
+    str = str.replace(/%E2%80%93/g,"–");
+    str = str.replace(/%28/g,"(");
+    str = str.replace(/%29/g,")");
+    str = str.replace(/%2C/g,",");
+    str = str.replace(/%3B/g,";");
+	return str.replace(/%20/g," ");
+}
+
+function setFileUpload($fileEl, $path) {
+	_focusWindow();
+	_wait(1000); // needed
+	// focus on the element
+	_focus($fileEl);
+	// click "space" to bring up the browser dialog
+	_typeKeyCodeNative(java.awt.event.KeyEvent.VK_SPACE);
+	_wait(1000);
+	// type the file path
+	_typeNative($path);
+	_wait(1000);
+	// press enter
+	_typeKeyCodeNative(java.awt.event.KeyEvent.VK_ENTER);
+	_wait(1000);
+}

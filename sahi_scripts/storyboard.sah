@@ -1,0 +1,212 @@
+//_navigateTo("https://txcte.org/user");
+//_setValue(_textbox("name"), "michelle.carson@safalpartners.com");
+//_setValue(_password("pass"), "safal101");
+//_click(_span("Sign in"));
+var $url_details = {};
+var $currentStep = 0;
+var $uploaded_files = {};
+
+var $content = _readCSVFile("../../data/resource_list.csv");
+var $select_values = {
+	'Individual with disabilities':'individual', 
+	'Preparing for nontraditional careers':'preparing',
+	'English Language Learners':'english',
+	'Other':'other',
+	'Audio':'audio',
+	'Document':'document',
+	'Downloadable docs':'downloadable',
+ 	'eBook':'ebook',
+ 	'Graphics/photos':'graphics',
+ 	'Interactive':'interactive',
+ 	'Mobile':'mobile',
+ 	'Text/HTML':'text',
+ 	'Video':'video',
+ 	'Activity/Lab':'activity',
+ 	'Assessment':'assessment',
+ 	'Career Development':'career',
+ 	'Case Study':'case',
+ 	'Data Set':'data',
+ 	'Diagram/Illustration':'diagram',
+ 	'Game':'game',
+ 	'Homework/Assignment':'homework',
+ 	'Learning Strategy':'learning',
+ 	'Lecture':'lecture',
+ 	'Lesson Plan':'lesson',
+ 	'Professional Development':'professional',
+ 	'Program of Study':'program',
+ 	'Reading':'reading',
+ 	'Scope and Sequence':'scope',
+ 	'Simulation':'simulation',
+ 	'Student Guide':'student', 
+ 	'Syllabus':'syllabus',
+ 	'Teaching Strategy':'teaching',
+ 	'Administrators':'administrators',
+ 	'Students':'students',
+ 	'Teachers':'teacher',
+ 	'Parents':'parents',
+ 	'Counselors':'counselors',
+ 	'Agriculture, Food and Natural Resources Career Cluster':'Agriculture, Food & Natural Resources',
+ 	'Architecture and Construction':'Architecture & Construction',
+ 	'Arts, AV Technology and Communications':'Arts, A/V Technology & Communications',
+ 	'Business Management and Administration':'Business Management & Administration',
+ 	'Education and Training':'Education & Training',
+ 	'Finance':'Finance',
+ 	'Government and Public Administration':'Government & Public Administration',
+ 	'Health Science':'Health Science',
+ 	'Hospitality and Tourism':'Hospitality & Tourism',
+ 	'Human Services':'Human Services',
+ 	'Information Technology':'Information Technology',
+ 	'Law, Public Safety, Corrections & Security':'Law, Public Safety, Corrections & Security',
+ 	'Manufacturing':'Manufacturing',
+ 	'Marketing':'Marketing',
+ 	'Science, Technology, Engineering and Mathematics':'Science, Technology, Engineering & Mathematics',
+ 	'Transportation, Distribution, and Logistics':'Transportation, Distribution & Logistics',
+};
+for($i=1; $i<=($content.length-1); $i++) {
+var $submit = 0;	
+	var $resource_name = $content[$i][0];
+	var $resource_id = $content[$i][1];
+	var $introduction = $content[$i][2];
+	var $Career_Cluster = $content[$i][3];
+	var $max_grade = $content[$i][5];
+	var $min_grade = $content[$i][4];
+	var $material_types = $content[$i][6];
+	var $audience = $content[$i][7];
+	var $keywords = $content[$i][8];
+
+	if($Career_Cluster) {
+		$career_cluster_array = $Career_Cluster.split(',');
+	}
+
+	if($material_types) {
+		$material_types_array = $material_types.split(',');
+	}
+
+	if($audience) {
+		$audience_array = $audience.split(',');
+	}
+
+
+
+	_navigateTo("https://txcte.org/dashboard/resources/step-one");
+	_selectDomain();
+	_setValue(_textbox("title"), $resource_name);
+	_setValue(_textbox("field_resource_key[und][0][value]"), $resource_id);
+	
+	if($career_cluster_array) {
+		for($x = 0; $x < $career_cluster_array.length; $x++) {
+			$array_value = trim($career_cluster_array[$x]);
+			$select_values['Career Development'] = 'Career Development';
+			try {
+			_setSelected(_select("field_resource_cpc[und][hierarchical_select][selects][0][0]"), $select_values[$array_value]);
+			} catch($e) {
+			_writeFile($e,'sahi_log.txt')
+			}
+			_click(_span("Add"));	
+		}
+	}
+
+
+	_setSelected(_select("field_resource_grade_low[und]"), $min_grade);
+	_setSelected(_select("field_resource_grade_high[und]"), $max_grade);
+	
+	_setSelected(_select("field_resource_description[und][0][format]"), "Plain text");
+	if(!$introduction) {
+		$introduction = "Description";
+	}
+	_setValue(_textarea("field_resource_description[und][0][value]"), $introduction);
+
+	if($material_types) {
+		for($x = 0; $x < $material_types_array.length; $x++) {
+			$array_value = $material_types_array[$x];
+			try {
+			_click(_checkbox("field_resource_type[und]["+$select_values[trim($array_value)]+"]"));
+			} catch($e) {
+			_writeFile($e,'sahi_log.txt')
+			}
+			
+		}
+	}
+
+	if($audience) {
+		for($x = 0; $x < $audience_array.length; $x++) {
+			$array_value = $audience_array[$x];
+			try {
+			_click(_checkbox("field_resource_audience[und]["+$select_values[trim($array_value)]+"]"));
+			} catch($e) {
+			_writeFile($e,'sahi_log.txt')
+			}
+		}
+	} 
+
+	_setValue(_textbox("field_resource_keywords[und]"), $keywords);
+	$is_document = false;
+	
+		_click(_span("Save and Advance"));
+				_wait(5000);
+
+	for($j = 9; $j < 50; $j++) {
+	    if(!$content[$i][$j]) {
+			continue;
+		}
+		$title = $content[$i][$j];
+		$button = $content[$i][++$j];
+		if($button == 'Interactive') {
+			$j = $j + 2;
+			$content_type = $content[$i][$j];
+			$presentation = $content[$i][++$j];
+			_setValue(_textbox("title"), $title);
+			_uncheck(_checkbox("status"));
+			_click(_submit("Add Content"));
+			_click(_link("Interactive"));
+		//	_click(_label($content_type));
+			_click(_div("H5P Hub.Select content type"));
+			_click(_link("Upload"));
+		//	_setFile2(_file(1), "C:\\fakepath\\Standard Lesson Conclusion template.h5p");
+			setFileUpload(_file(1), $presentation+'.h5p');						
+			_click(_button("Use"));
+			_wait(40000);
+			_wait(40000);
+			_click(_span("Save[1]"));
+
+		}
+		else{
+			$desc = $content[$i][++$j];
+			_setValue(_textbox("title"), $title);
+			_uncheck(_checkbox("status"));
+			_click(_submit("Add Content"));
+			_click(_link("HTML"));
+			_setSelected(_select("field_subcontent_html_body[und][0][format]"), "Plain text");
+			_setValue(_textarea("field_subcontent_html_body[und][0][value]"), $desc);
+			_setSelected(_select("field_subcontent_html_body[und][0][format]"), "Filtered HTML");
+			_click(_submit("Save[1]"));		
+		}
+			_click(_span("Add Section"));
+	}
+
+	
+	var $url;
+	_set($url, window.location.href);
+	$get_id = $url.split("/");
+	var $length = $get_id.length - 1;
+}
+
+function trim(str) {
+	return str.replace(/^\s+|\s+$/g,"");
+}
+
+function setFileUpload($fileEl, $path) {
+	_focusWindow();
+	_wait(1000); // needed
+	// focus on the element
+	_focus($fileEl);
+	// click "space" to bring up the browser dialog
+	_typeKeyCodeNative(java.awt.event.KeyEvent.VK_SPACE);
+	_wait(1000);
+	// type the file path
+	_typeNative($path);
+	_wait(1000);
+	// press enter
+	_typeKeyCodeNative(java.awt.event.KeyEvent.VK_ENTER);
+	_wait(1000);
+}
